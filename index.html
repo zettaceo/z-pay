@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Z-PAY — Gateway de Pagamentos para Negócios</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#060912;
+      --bg2:#090d18;
+      --card:#0d1322;
+      --card2:#101828;
+
+      --border:rgba(255,255,255,0.055);
+      --border2:rgba(255,255,255,0.10);
+
+      /* PREMIUM ORANGE */
+      --accent:#ff7a18;
+      --accent2:#ff4d00;
+      --accent-dim:rgba(255,122,24,0.12);
+      --accent-glow:rgba(255,122,24,0.30);
+
+      --teal:#06b6d4;
+      --teal-dim:rgba(6,182,212,0.10);
+
+      --purple:#818cf8;
+      --purple-dim:rgba(129,140,248,0.10);
+
+      --amber:#fbbf24;
+      --amber-dim:rgba(251,191,36,0.10);
+
+      --text:#f1f5f9;
+      --text2:#8aa0bd;
+      --text3:#445a78;
+
+      --radius:16px;
+
+      /* safe-area (Android/iPhone notch) */
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:'DM Sans',sans-serif;
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* noise */
+    body::before{
+      content:'';
+      position:fixed;inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events:none;z-index:0;opacity:0.45;
+    }
+
+    /* NAV */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      backdrop-filter: blur(22px) saturate(1.35);
+      background: rgba(6,9,18,0.78);
+      border-bottom:1px solid var(--border);
+      height:64px;
+      padding:
+        calc(10px + var(--safe-top))
+        calc(26px + var(--safe-right))
+        10px
+        calc(26px + var(--safe-left));
+      display:flex;align-items:center;justify-content:space-between;
+      gap:14px;
+    }
+
+    .nav-left{
+      display:flex;align-items:center;gap:12px;min-width:0;
+    }
+
+    .brand{
+      display:flex;align-items:center;gap:12px;
+      text-decoration:none;min-width:0;
+    }
+
+    .brand-badge{
+      width:38px;height:38px;border-radius:12px;
+      background: linear-gradient(145deg, rgba(255,122,24,0.14), rgba(255,77,0,0.06));
+      border: 1px solid rgba(255,122,24,0.24);
+      box-shadow: 0 0 18px rgba(255,122,24,0.12);
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+    .brand-badge img{
+      width:100%;height:100%;object-fit:cover;display:block;
+    }
+
+    .brand-text{
+      display:flex;flex-direction:column;gap:2px;min-width:0;
+    }
+    .brand-name{
+      font-family:'Bricolage Grotesque',sans-serif;
+      font-weight:800;
+      letter-spacing:0.06em;
+      font-size:15px;
+      white-space:nowrap;
+    }
+    .brand-sub{
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:var(--text3);
+      white-space:nowrap;
+    }
+
+    .nav-links{
+      display:flex;align-items:center;gap:26px;
+      list-style:none;
+      white-space:nowrap;
+    }
+    .nav-links a{
+      text-decoration:none;color:var(--text2);
+      font-size:13.5px;font-weight:600;
+      transition:color .18s ease;
+    }
+    .nav-links a:hover{color:var(--text);}
+
+    .nav-right{
+      display:flex;align-items:center;gap:10px;
+      flex:0 0 auto;
+    }
+
+    .btn-ghost{
+      background:transparent;
+      border:1px solid var(--border2);
+      color:var(--text2);
+      font-family:'DM Sans',sans-serif;
+      font-size:13px;font-weight:700;
+      padding:10px 16px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:all .18s ease;
+      text-decoration:none;
+      display:inline-flex;align-items:center;justify-content:center;
+      white-space:nowrap;
+    }
+    .btn-ghost:hover{border-color:rgba(255,122,24,0.40);color:var(--accent);}
+
+    .btn-accent{
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#000;
+      font-family:'DM Sans',sans-serif;
+      font-size:13px;font-weight:900;
+      padding:11px 18px;
+      border-radius:12px;
+      border:none;
+      cursor:pointer;
+      text-decoration:none;
+      transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      box-shadow: 0 10px 34px rgba(255,122,24,0.18), 0 0 26px rgba(255,122,24,0.14);
+      display:inline-flex;align-items:center;justify-content:center;
+      white-space:nowrap;
+    }
+    .btn-accent:hover{
+      transform: translateY(-1px);
+      filter:saturate(1.05);
+      box-shadow: 0 12px 40px rgba(255,122,24,0.24), 0 0 34px rgba(255,122,24,0.18);
+    }
+
+    /* language */
+    .lang-btn{
+      display:inline-flex;align-items:center;gap:10px;
+      border:1px solid var(--border2);
+      background: rgba(255,255,255,0.02);
+      border-radius:12px;
+      padding:8px 10px;
+      height:42px;
+      cursor:pointer;
+      user-select:none;
+      transition:all .18s ease;
+    }
+    .lang-btn:hover{border-color:rgba(255,122,24,0.35);}
+    .flag{
+      width:22px;height:16px;
+      border-radius:4px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:13px;line-height:1;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+    }
+    .lang-code{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:0.08em;
+      color:var(--text2);
+    }
+    .chev{
+      width:10px;height:10px;opacity:.7;
+      border-right:2px solid rgba(255,255,255,0.35);
+      border-bottom:2px solid rgba(255,255,255,0.35);
+      transform: rotate(45deg);
+      margin-left:2px;
+    }
+
+    .lang-pop{
+      position:absolute;
+      top: calc(64px + var(--safe-top) + 10px);
+      right: calc(26px + var(--safe-right));
+      width: 190px;
+      background: rgba(12,16,28,0.92);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.55);
+      backdrop-filter: blur(18px) saturate(1.35);
+      padding:10px;
+      display:none;
+      z-index:120;
+    }
+    .lang-pop.open{display:block;}
+    .lang-item{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      color:var(--text2);
+      font-weight:800;
+      font-size:13px;
+      transition:all .14s ease;
+    }
+    .lang-item:hover{
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+    .lang-item.active{
+      background: rgba(255,122,24,0.10);
+      border:1px solid rgba(255,122,24,0.20);
+      color: var(--accent);
+    }
+
+    /* hamburger */
+    .btn-icon{
+      width:42px;height:42px;border-radius:12px;
+      border:1px solid var(--border2);
+      background: rgba(255,255,255,0.02);
+      display:none;
+      align-items:center;justify-content:center;
+      cursor:pointer;
+      transition:all .18s ease;
+    }
+    .btn-icon:hover{border-color:rgba(255,122,24,0.35);}
+    .hamb{
+      width:18px;height:12px;position:relative;
+    }
+    .hamb span{
+      position:absolute;left:0;right:0;height:2px;border-radius:2px;
+      background: rgba(255,255,255,0.70);
+    }
+    .hamb span:nth-child(1){top:0;}
+    .hamb span:nth-child(2){top:5px;opacity:.85;}
+    .hamb span:nth-child(3){bottom:0;opacity:.70;}
+
+    /* HERO */
+    .hero{
+      position:relative;
+      min-height:100vh;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      text-align:center;
+      padding:
+        calc(120px + var(--safe-top))
+        calc(22px + var(--safe-right))
+        calc(88px + var(--safe-bottom))
+        calc(22px + var(--safe-left));
+      overflow:hidden;
+    }
+
+    .hero-grid{
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size:48px 48px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black, transparent);
+      pointer-events:none;
+    }
+
+    .hero-glow{
+      position:absolute;inset:0;pointer-events:none;
+    }
+    .glow-a{
+      position:absolute;width:780px;height:460px;
+      background: radial-gradient(ellipse, rgba(255,122,24,0.10) 0%, transparent 70%);
+      top:4%;left:50%;transform:translateX(-50%);
+    }
+    .glow-b{
+      position:absolute;width:430px;height:430px;
+      background: radial-gradient(circle, rgba(6,182,212,0.07) 0%, transparent 70%);
+      bottom:-140px;right:-80px;
+    }
+
+    .hero-eyebrow{
+      display:inline-flex;align-items:center;gap:10px;
+      background:rgba(255,122,24,0.09);
+      border:1px solid rgba(255,122,24,0.20);
+      border-radius:999px;
+      padding:7px 16px;
+      font-size:12px;font-weight:900;
+      color:var(--accent);
+      letter-spacing:0.10em;
+      text-transform:uppercase;
+      margin-bottom:26px;
+      animation: fadeUp .6s ease both;
+    }
+    .eyebrow-dot{
+      width:7px;height:7px;border-radius:50%;
+      background:var(--accent);
+      box-shadow:0 0 10px rgba(255,122,24,0.35);
+      animation: blink 2s ease infinite;
+    }
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+    h1{
+      font-family:'Bricolage Grotesque',sans-serif;
+      font-size: clamp(40px, 6.4vw, 84px);
+      font-weight:900;
+      line-height:1.02;
+      letter-spacing:-0.03em;
+      max-width: 980px;
+      margin-bottom: 18px;
+      animation: fadeUp .7s .08s ease both;
+    }
+    h1 em{font-style:normal;color:var(--accent);}
+    h1 .line2{
+      display:block;
+      color:var(--text2);
+      font-weight:700;
+      font-size:0.72em;
+      margin-top:10px;
+      letter-spacing:-0.01em;
+    }
+
+    .hero-desc{
+      font-size:18px;
+      line-height:1.7;
+      color:var(--text2);
+      max-width: 680px;
+      margin: 0 auto 36px;
+      animation: fadeUp .7s .16s ease both;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:center;
+      animation: fadeUp .7s .22s ease both;
+    }
+    .hero-actions .btn-accent{
+      padding:14px 26px;
+      font-size:15px;
+      border-radius:14px;
+      min-width: 220px;
+    }
+    .hero-actions .btn-ghost{
+      padding:14px 22px;
+      font-size:15px;
+      border-radius:14px;
+      min-width: 180px;
+    }
+
+    .mvp-note{
+      margin-top:18px;
+      font-size:13px;
+      color:var(--text3);
+      letter-spacing:0.02em;
+      animation: fadeUp .7s .28s ease both;
+    }
+
+    /* terminal mock */
+    .hero-terminal{
+      margin-top:46px;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      padding: 18px 18px;
+      width:100%;
+      max-width: 760px;
+      text-align:left;
+      font-family:'DM Mono',monospace;
+      font-size:12.5px;
+      animation: fadeUp .7s .32s ease both;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero-terminal::before{
+      content:'';
+      position:absolute;top:0;left:0;right:0;height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,122,24,0.35), transparent);
+    }
+    .terminal-bar{
+      display:flex;align-items:center;gap:6px;margin-bottom:12px;
+    }
+    .dot-r{width:10px;height:10px;border-radius:50%;background:#ff5f57;}
+    .dot-y{width:10px;height:10px;border-radius:50%;background:#febc2e;}
+    .dot-g{width:10px;height:10px;border-radius:50%;background:var(--accent);}
+    .terminal-title{
+      margin-left:8px;
+      font-family:'DM Sans',sans-serif;
+      font-size:12px;
+      color:var(--text3);
+      flex:1;
+      text-align:center;
+      font-weight:700;
+      letter-spacing:0.02em;
+    }
+    .t-line{margin-bottom:5px;}
+    .t-dim{color:var(--text3);}
+    .t-acc{color:var(--accent);}
+    .t-teal{color:var(--teal);}
+    .t-amber{color:var(--amber);}
+    .t-white{color:var(--text);}
+    .t-cursor{display:inline-block;width:8px;height:13px;background:var(--accent);vertical-align:middle;animation:blink 1s step-end infinite;}
+
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(22px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    /* TRUST */
+    .trust{
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      padding:24px 22px;
+      background: var(--card);
+    }
+    .trust-inner{
+      max-width:1100px;margin:0 auto;
+      display:flex;align-items:center;justify-content:center;
+      gap:0;flex-wrap:wrap;
+    }
+    .trust-label{
+      font-size:11px;font-weight:900;color:var(--text3);
+      letter-spacing:0.12em;text-transform:uppercase;
+      white-space:nowrap;padding-right:24px;
+      border-right:1px solid var(--border2);
+      margin-right:24px;
+    }
+    .trust-logos{
+      display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;
+    }
+    .trust-pill{
+      font-family:'DM Mono',monospace;
+      font-size:12px;
+      color:rgba(255,255,255,0.55);
+      border:1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.02);
+      padding:8px 12px;
+      border-radius:999px;
+    }
+
+    /* METRICS */
+    .metrics-wrap{padding:0 22px;max-width:1200px;margin:0 auto;}
+    .metrics{
+      max-width:1100px;margin:0 auto;
+      margin-top:64px;
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:1px;
+      background: var(--border);
+      border:1px solid var(--border);
+      border-radius:20px;
+      overflow:hidden;
+    }
+    .metric-block{
+      background: var(--card);
+      padding: 28px 18px;
+      text-align:center;
+    }
+    .mb-val{
+      font-family:'Bricolage Grotesque',sans-serif;
+      font-size:34px;font-weight:900;color:var(--text);
+      line-height:1;
+    }
+    .mb-val span{color:var(--accent);}
+    .mb-label{font-size:13px;color:var(--text2);margin-top:8px;font-weight:600;}
+
+    /* SECTIONS */
+    section{position:relative;z-index:1;}
+    .section-chip{
+      display:inline-flex;align-items:center;gap:7px;
+      font-size:11px;font-weight:900;color:var(--accent);
+      letter-spacing:0.13em;text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .section-chip::before{
+      content:'';
+      width:16px;height:1.5px;background:var(--accent);
+    }
+    .section-h{
+      font-family:'Bricolage Grotesque',sans-serif;
+      font-size: clamp(28px, 3.6vw, 46px);
+      font-weight:900;
+      line-height:1.08;
+      letter-spacing:-0.03em;
+      margin-bottom:12px;
+    }
+    .section-p{
+      font-size:16px;color:var(--text2);line-height:1.75;
+      max-width:520px;
+    }
+
+    /* HOW IT WORKS */
+    .hiw{padding:92px 22px;max-width:1100px;margin:0 auto;}
+    .hiw-header{text-align:center;margin-bottom:64px;}
+    .hiw-header .section-p{margin:0 auto;}
+    .hiw-flow{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:0;
+      position:relative;
+    }
+    .hiw-flow::before{
+      content:'';
+      position:absolute;top:44px;
+      left:calc(16.6% + 24px);
+      right:calc(16.6% + 24px);
+      height:1px;
+      background: linear-gradient(90deg, rgba(255,122,24,0.45), rgba(6,182,212,0.35));
+      opacity:0.35;
+    }
+    .hiw-step{padding:26px 18px;text-align:center;}
+    .hiw-icon{
+      width:86px;height:86px;margin:0 auto 18px;
+      border-radius:24px;position:relative;
+      display:flex;align-items:center;justify-content:center;
+      font-size:32px;
+    }
+    .hiw-icon .ring{
+      position:absolute;inset:-6px;border-radius:30px;
+      border:1px dashed rgba(255,122,24,0.22);
+    }
+    .ic-acc{background: rgba(255,122,24,0.12);border:1px solid rgba(255,122,24,0.22);}
+    .ic-teal{background: var(--teal-dim);border:1px solid rgba(6,182,212,0.20);}
+    .ic-purple{background: var(--purple-dim);border:1px solid rgba(129,140,248,0.20);}
+    .hiw-title{
+      font-family:'Bricolage Grotesque',sans-serif;
+      font-size:18px;font-weight:900;margin-bottom:8px;
+    }
+    .hiw-body{font-size:14px;color:var(--text2);line-height:1.65;max-width:320px;margin:0 auto;}
+
+    /* FEATURES */
+    .features{padding:0 22px 92px;max-width:1100px;margin:0 auto;}
+    .features-head{margin-bottom:46px;}
+    .bento{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      grid-template-rows:auto auto;
+      gap:18px;
+    }
+    .bento-card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:26px;
+      transition:all .26s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .bento-card::after{
+      content:'';
+      position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+    }
+    .bento-card:hover{
+      border-color: var(--border2);
+      transform: translateY(-3px);
+      background: var(--card2);
+    }
+    .bento-card.wide{grid-column: span 2;}
+    .bento-card.tall{grid-row: span 2;}
+    .bento-card.highlight{
+      background: linear-gradient(135deg, rgba(255,122,24,0.08), rgba(13,19,34,1));
+      border-color: rgba(255,122,24,0.22);
+    }
+    .bento-card.highlight:hover{border-color:rgba(255,122,24,0.35);}
+
+    .bc-icon{
+      width:46px;height:46px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:21px;margin-bottom:14px;
+      background: rgba(255,255,255,0.04);
+    }
+    .bi-acc{background: var(--accent-dim);}
+    .bi-teal{background: var(--teal-dim);}
+    .bi-purple{background: var(--purple-dim);}
+    .bi-amber{background: var(--amber-dim);}
+
+    .bc-title{
+      font-family:'Bricolage Grotesque',sans-serif;
+      font-size:17px;font-weight:900;margin-bottom:7px;
+    }
+    .bc-body{font-size:13.5px;color:var(--text2);line-height:1.65;}
+
+    .mini-chart{margin-top:20px;display:flex;align-items:flex-end;gap:5px;height:56px;}
+    .bar{
+      flex:1;border-radius:4px 4px 0 0;
+      background: rgba(255,122,24,0.10);
+      border:1px solid rgba(255,122,24,0.18);
+      position:relative;transition:height .5s ease;
+    }
+    .bar.active{background: var(--accent);border-color: rgba(255,122,24,0.45);}
+
+    .split-demo{margin-top:18px;display:flex;flex-direction:column;gap:8px;}
+    .split-row{
+      display:flex;align-items:center;justify-content:space-between;
+      background: var(--card2);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 14px;
+      font-size:12px;
+    }
+    .split-name{color:var(--text2);}
+    .split-pct{color:var(--accent);font-weight:900;font-family:'DM Mono',monospace;}
+
+    .webhook-log{margin-top:18px;display:flex;flex-direction:column;gap:6px;font-family:'DM Mono',monospace;font-size:11.5px;}
+    .wl-row{
+      display:flex;align-items:center;gap:8px;
+      background: var(--card2);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px 12px;
+    }
+    .wl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+    .dot-ok{background: var(--accent);box-shadow:0 0 10px rgba(255,122,24,0.25);}
+    .dot-pend{background: var(--amber);}
+    .dot-fail{background:#f87171;}
+    .wl-ev{color:var(--text2);flex:1;}
+    .wl-ms{color:var(--text3);}
+
+    /* PRICING */
+    .pricing{
+      padding:92px 22px;
+      background: var(--card);
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+    }
+    .pricing-inner{max-width:1100px;margin:0 auto;}
+    .pricing-head{text-align:center;margin-bottom:58px;}
+    .pricing-head .section-p{margin:0 auto;max-width:640px;}
+    .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+
+    .price-card{
+      background: var(--bg2);
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:32px 28px;
+      position:relative;
+      overflow:hidden;
+      transition:all .28s ease;
+    }
+    .price-card:hover{transform:translateY(-4px);border-color:var(--border2);}
+    .price-card.featured{
+      background: linear-gradient(145deg, rgba(255,122,24,0.10), rgba(13,19,34,1));
+      border-color: rgba(255,122,24,0.28);
+      box-shadow: 0 0 60px rgba(255,122,24,0.06);
+    }
+    .price-card.featured::before{
+      content:'RECOMENDADO';
+      position:absolute;top:16px;right:16px;
+      background: linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#000;
+      font-size:9px;font-weight:900;letter-spacing:0.10em;
+      padding:5px 10px;border-radius:999px;
+    }
+
+    .pc-plan{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text2);margin-bottom:6px;}
+    .pc-price{
+      font-family:'Bricolage Grotesque',sans-serif;
+      font-size:44px;font-weight:900;line-height:1;margin-bottom:6px;
+    }
+    .pc-price span{font-size:16px;color:var(--text2);font-weight:700;font-family:'DM Sans',sans-serif;}
+    .pc-desc{font-size:13px;color:var(--text2);margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+
+    .pc-fee{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px 14px;
+      margin-bottom:18px;
+      font-size:12.5px;
+      color:var(--text2);
+      line-height:1.6;
+    }
+    .pc-fee strong{color:var(--text);font-family:'DM Mono',monospace;}
+
+    .pc-items{list-style:none;margin-bottom:22px;}
+    .pc-items li{
+      display:flex;align-items:center;gap:9px;
+      font-size:13.5px;color:var(--text2);
+      padding:6px 0;
+    }
+    .pc-items li::before{
+      content:'✓';
+      color:var(--accent);
+      font-size:11px;font-weight:900;
+      width:18px;height:18px;border-radius:5px;
+      background: rgba(255,122,24,0.12);
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;
+      border:1px solid rgba(255,122,24,0.18);
+    }
+    .pc-items li.off{color:var(--text3);}
+    .pc-items li.off::before{
+      content:'—';
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--text3);
+      font-weight:700;
+    }
+
+    .pc-btn{
+      width:100%;
+      padding:13px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+      transition:all .18s ease;
+      font-family:'DM Sans',sans-serif;
+      border:none;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      white-space:nowrap;
+    }
+    .pc-outline{background:transparent;border:1px solid var(--border2);color:var(--text);}
+    .pc-outline:hover{border-color:rgba(255,122,24,0.40);color:var(--accent);}
+    .pc-solid{
+      background: linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#000;
+      box-shadow: 0 10px 32px rgba(255,122,24,0.18);
+    }
+    .pc-solid:hover{transform:translateY(-1px);box-shadow:0 12px 38px rgba(255,122,24,0.24);}
+
+    /* API */
+    .api-section{padding:92px 22px;max-width:1100px;margin:0 auto;}
+    .api-inner{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;}
+    .api-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+    .api-badge{
+      font-size:11px;font-weight:900;padding:6px 12px;border-radius:9px;letter-spacing:0.04em;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+    .ab-acc{background: rgba(255,122,24,0.10);color: var(--accent);border-color: rgba(255,122,24,0.20);}
+    .ab-teal{background: rgba(6,182,212,0.10);color: var(--teal);border-color: rgba(6,182,212,0.20);}
+    .ab-purple{background: rgba(129,140,248,0.10);color: var(--purple);border-color: rgba(129,140,248,0.20);}
+
+    .code-block{
+      background: var(--card);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:18px;
+      overflow:hidden;
+    }
+    .code-topbar{
+      display:flex;align-items:center;gap:6px;
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      background: var(--card2);
+    }
+    .code-title{
+      font-size:12px;color:var(--text3);flex:1;text-align:center;
+      font-family:'DM Mono',monospace;font-weight:700;
+    }
+    pre{
+      padding:18px 16px;
+      font-family:'DM Mono',monospace;
+      font-size:12px;
+      line-height:1.75;
+      overflow-x:auto;
+      color:var(--text2);
+      -webkit-overflow-scrolling: touch;
+    }
+    .c-key{color:#7dd3fc;}
+    .c-str{color:#86efac;}
+    .c-num{color:var(--amber);}
+    .c-kw{color:var(--purple);}
+    .c-punct{color:var(--text3);}
+    .c-com{color:var(--text3);font-style:italic;}
+    .c-acc{color:var(--accent);}
+
+    /* CTA */
+    .cta{
+      padding:92px 22px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .cta::before{
+      content:'';
+      position:absolute;inset:0;
+      background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(255,122,24,0.08) 0%, transparent 100%);
+      pointer-events:none;
+    }
+    .cta-inner{position:relative;z-index:1;max-width:720px;margin:0 auto;}
+    .cta-inner h2{
+      font-family:'Bricolage Grotesque',sans-serif;
+      font-size: clamp(32px, 5vw, 58px);
+      font-weight:900;
+      letter-spacing:-0.03em;
+      line-height:1.06;
+      margin-bottom:14px;
+    }
+    .cta-inner h2 em{font-style:normal;color:var(--accent);}
+    .cta-inner p{font-size:17px;color:var(--text2);margin-bottom:34px;line-height:1.7;}
+    .cta-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;}
+    .cta-row .btn-accent{padding:16px 34px;font-size:16px;border-radius:16px;min-width:220px;}
+    .cta-row .btn-ghost{padding:16px 26px;font-size:15px;border-radius:16px;min-width:180px;}
+
+    /* FOOTER (volta pro formato bonito em grid) */
+    footer{
+      background: var(--card);
+      border-top:1px solid var(--border);
+      padding:
+        56px
+        calc(22px + var(--safe-right))
+        calc(26px + var(--safe-bottom))
+        calc(22px + var(--safe-left));
+    }
+    .footer-inner{max-width:1100px;margin:0 auto;}
+    .footer-top{
+      display:grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap:36px;
+      padding-bottom:42px;
+      border-bottom:1px solid var(--border);
+      margin-bottom:22px;
+    }
+    .fb-brand p{
+      font-size:13px;color:var(--text2);
+      line-height:1.7;margin-top:10px;max-width:320px;
+    }
+    .ecosystem-pill{
+      display:inline-flex;align-items:center;gap:8px;
+      background: var(--card2);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      color:var(--text2);
+      margin-top:12px;
+    }
+    .ecosystem-pill span{color:var(--accent);font-weight:900;}
+
+    .fc h4{
+      font-size:11px;font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+      color:var(--text3);
+      margin-bottom:14px;
+    }
+    .fc ul{list-style:none;}
+    .fc ul li{margin-bottom:10px;}
+    .fc ul li a{
+      text-decoration:none;
+      color:var(--text2);
+      font-size:13.5px;
+      font-weight:700;
+      transition:color .18s ease;
+    }
+    .fc ul li a:hover{color:var(--accent);}
+
+    .footer-bottom{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:14px;
+      font-size:12px;color:var(--text3);
+      flex-wrap:wrap;
+    }
+    .footer-bottom strong{color:var(--accent);}
+    .fb-links{display:flex;gap:18px;flex-wrap:wrap;}
+    .fb-links a{color:var(--text3);text-decoration:none;font-weight:700;transition:color .18s ease;}
+    .fb-links a:hover{color:var(--text2);}
+
+    /* REVEAL */
+    .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease, transform .6s ease;}
+    .reveal.in{opacity:1;transform:translateY(0);}
+
+    /* MOBILE MENU (premium, não feio, não esmagado) */
+    .overlay{
+      position:fixed;inset:0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px) saturate(1.2);
+      z-index:200;
+      display:none;
+      padding:
+        calc(16px + var(--safe-top))
+        calc(16px + var(--safe-right))
+        calc(16px + var(--safe-bottom))
+        calc(16px + var(--safe-left));
+    }
+    .overlay.open{display:block;}
+
+    .sheet{
+      width:100%;
+      max-width:520px;
+      margin: 0 auto;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(15,20,35,0.96), rgba(8,12,22,0.96));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 70px rgba(0,0,0,0.60);
+      overflow:hidden;
+      transform: translateY(10px);
+      animation: sheetIn .18s ease forwards;
+    }
+    @keyframes sheetIn{
+      to{transform: translateY(0);}
+    }
+    .sheet-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:16px 16px;
+      border-bottom:1px solid rgba(255,255,255,0.07);
+    }
+    .sheet-title{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color: var(--text3);
+    }
+    .close-btn{
+      width:44px;height:44px;border-radius:14px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.02);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;
+      transition:all .16s ease;
+    }
+    .close-btn:hover{border-color:rgba(255,122,24,0.35);}
+    .close-x{
+      width:14px;height:14px;position:relative;
+    }
+    .close-x::before,.close-x::after{
+      content:'';
+      position:absolute;left:50%;top:50%;
+      width:16px;height:2px;border-radius:2px;
+      background: rgba(255,255,255,0.70);
+      transform-origin:center;
+    }
+    .close-x::before{transform: translate(-50%,-50%) rotate(45deg);}
+    .close-x::after{transform: translate(-50%,-50%) rotate(-45deg);}
+
+    .sheet-body{padding:16px;}
+    .sheet-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+    .mm-item{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:16px 16px;
+      border-radius:16px;
+      background: rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.07);
+      text-decoration:none;
+      color: var(--text);
+      font-weight:900;
+      transition: all .16s ease;
+    }
+    .mm-item:hover{
+      border-color: rgba(255,122,24,0.22);
+      background: rgba(255,122,24,0.06);
+    }
+    .mm-arrow{color: rgba(255,255,255,0.38);font-weight:900;}
+
+    .sheet-actions{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:14px;
+    }
+    .sheet-actions a{
+      text-decoration:none;
+      display:flex;align-items:center;justify-content:center;
+      height:48px;
+      border-radius:16px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .sheet-actions .a-login{
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.02);
+      color: var(--text);
+    }
+    .sheet-actions .a-login:hover{
+      border-color: rgba(255,122,24,0.28);
+      color: var(--accent);
+    }
+    .sheet-actions .a-sign{
+      background: linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#000;
+      box-shadow: 0 10px 30px rgba(255,122,24,0.18);
+    }
+    .sheet-actions .a-sign:hover{transform: translateY(-1px);}
+
+    /* RESPONSIVE */
+    @media (max-width: 980px){
+      .nav-links{display:none;}
+      .btn-ghost.nav-login, .btn-accent.nav-sign{display:none;}
+      .btn-icon{display:flex;}
+    }
+
+    @media (max-width: 900px){
+      .metrics{grid-template-columns:1fr 1fr;}
+      .hiw-flow{grid-template-columns:1fr;gap:14px;}
+      .hiw-flow::before{display:none;}
+      .bento{grid-template-columns:1fr;}
+      .bento-card.wide{grid-column:span 1;}
+      .pricing-grid{grid-template-columns:1fr;}
+      .api-inner{grid-template-columns:1fr;gap:22px;}
+      .footer-top{grid-template-columns:1fr 1fr;gap:22px;}
+      nav{
+        padding:
+          calc(8px + var(--safe-top))
+          calc(12px + var(--safe-right))
+          8px
+          calc(12px + var(--safe-left));
+      }
+    }
+
+    @media (max-width: 520px){
+      .brand-name{font-size:14px;}
+      .brand-sub{font-size:9px;}
+      .hero-desc{font-size:16px;}
+      .hero-terminal{font-size:12px;padding:16px;}
+      pre{font-size:11.5px;}
+      .trust-label{border-right:none;margin-right:0;padding-right:0;width:100%;text-align:center;margin-bottom:12px;}
+      .trust-inner{gap:12px;}
+      .footer-top{grid-template-columns:1fr;gap:18px;}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-left">
+      <a class="brand" href="#">
+        <div class="brand-badge">
+          <!-- logo: funciona no GitHub Pages; no Acode precisa existir local -->
+          <img src="assets/logo/zpay-logo.png" alt="Z-PAY Logo">
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">Z-PAY</div>
+          <div class="brand-sub" data-i18n="nav_sub">GATEWAY</div>
+        </div>
+      </a>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="#como" data-i18n="nav_how">Como funciona</a></li>
+      <li><a href="#features" data-i18n="nav_features">Funcionalidades</a></li>
+      <li><a href="#pricing" data-i18n="nav_pricing">Planos</a></li>
+      <li><a href="#api" data-i18n="nav_devs">Desenvolvedores</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <!-- language -->
+      <div style="position:relative;">
+        <div class="lang-btn" id="langBtn" aria-label="Language">
+          <div class="flag" id="flagBox">🇧🇷</div>
+          <div class="lang-code" id="langCode">PT</div>
+          <div class="chev"></div>
+        </div>
+
+        <div class="lang-pop" id="langPop">
+          <div class="lang-item active" data-lang="pt">
+            <div class="flag">🇧🇷</div>
+            <div>Português</div>
+          </div>
+          <div class="lang-item" data-lang="en">
+            <div class="flag">🇺🇸</div>
+            <div>English</div>
+          </div>
+          <div class="lang-item" data-lang="zh">
+            <div class="flag">🇨🇳</div>
+            <div>中文</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- desktop actions -->
+      <a class="btn-ghost nav-login" href="http://95.111.247.134:8082/" target="_blank" rel="noopener" data-i18n="nav_login">Login</a>
+      <a class="btn-accent nav-sign" href="http://95.111.247.134:8082/" target="_blank" rel="noopener" data-i18n="nav_signup">Criar conta</a>
+
+      <!-- mobile menu button -->
+      <button class="btn-icon" id="menuBtn" aria-label="Menu">
+        <div class="hamb" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow">
+      <div class="glow-a"></div>
+      <div class="glow-b"></div>
+    </div>
+
+    <div class="hero-eyebrow">
+      <div class="eyebrow-dot"></div>
+      <span data-i18n="eyebrow">MVP B2B: checkout, API e webhooks para cobrar</span>
+    </div>
+
+    <h1>
+      <span data-i18n="h1_a">Receba em</span> <em data-i18n="h1_b">Pix, Cripto</em> <span data-i18n="h1_c">e Cartão</span>
+      <span class="line2" data-i18n="h1_line2">do mesmo link. no mesmo painel.</span>
+    </h1>
+
+    <p class="hero-desc" data-i18n="hero_desc">
+      Z-PAY é o gateway de cobranças do ecossistema Zetta. Crie charges, gerencie splits, dispare webhooks e acompanhe taxas e repasses em um painel que escala — sem dependência do Z-FINANCE.
+    </p>
+
+    <div class="hero-actions">
+      <a href="http://95.111.247.134:8082/" target="_blank" rel="noopener" class="btn-accent" data-i18n="cta_start">Começar agora</a>
+      <a href="#api" class="btn-ghost" data-i18n="cta_docs">Ver docs →</a>
+    </div>
+
+    <div class="mvp-note" data-i18n="mvp_note">B2B MVP: sem virar banco, sem obrigar conta no Z-FINANCE.</div>
+
+    <div class="hero-terminal">
+      <div class="terminal-bar">
+        <div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div>
+        <span class="terminal-title" data-i18n="term_title">POST /v1/charges · create charge</span>
+      </div>
+      <div class="t-line"><span class="t-dim" data-i18n="term_c1">// Crie uma cobrança e receba um link em segundos</span></div>
+      <div class="t-line"><span class="t-dim">$ </span><span class="t-acc">curl</span> <span class="t-white">-X POST https://api.pay.zetta.com/v1/charges \</span></div>
+      <div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-teal">-H</span> <span class="t-amber">"Authorization: Bearer sk_live_••••••••"</span> \</div>
+      <div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-teal">-H</span> <span class="t-amber">"Idempotency-Key: 6f0b2a8d-•••"</span> \</div>
+      <div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-teal">-d</span> <span class="t-amber">'{"amount":15000,"methods":["PIX","CARD","CRYPTO"]}'</span></div>
+      <div class="t-line" style="margin-top:10px"><span class="t-dim">← 201 Created</span></div>
+      <div class="t-line"><span class="t-dim">{</span></div>
+      <div class="t-line">&nbsp;&nbsp;<span class="t-acc">"id"</span><span class="t-dim">:</span> <span class="t-amber">"ch_9f2a3b..."</span><span class="t-dim">,</span></div>
+      <div class="t-line">&nbsp;&nbsp;<span class="t-acc">"status"</span><span class="t-dim">:</span> <span class="t-white">"PENDING"</span><span class="t-dim">,</span></div>
+      <div class="t-line">&nbsp;&nbsp;<span class="t-acc">"payment_link"</span><span class="t-dim">:</span> <span class="t-amber">"https://pay.zetta.com/c/ch_9f2a..."</span></div>
+      <div class="t-line"><span class="t-dim">}</span> <span class="t-cursor"></span></div>
+    </div>
+  </section>
+
+  <!-- TRUST -->
+  <div class="trust">
+    <div class="trust-inner">
+      <span class="trust-label" data-i18n="trust_label">ECOSYSTEM</span>
+      <div class="trust-logos">
+        <span class="trust-pill">ZETTA</span>
+        <span class="trust-pill">Z-FINANCE</span>
+        <span class="trust-pill">Z-PAY</span>
+        <span class="trust-pill">WEBHOOKS</span>
+        <span class="trust-pill">API</span>
+        <span class="trust-pill">PIX</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics-wrap">
+    <div class="metrics reveal">
+      <div class="metric-block">
+        <div class="mb-val"><span>R$</span><span data-i18n="m1v">0</span></div>
+        <div class="mb-label" data-i18n="m1l">setup no Starter</div>
+      </div>
+      <div class="metric-block">
+        <div class="mb-val"><span data-i18n="m2v">3+</span></div>
+        <div class="mb-label" data-i18n="m2l">métodos de pagamento</div>
+      </div>
+      <div class="metric-block">
+        <div class="mb-val"><span>&lt;</span><span data-i18n="m3v">2s</span></div>
+        <div class="mb-label" data-i18n="m3l">confirmação Pix</div>
+      </div>
+      <div class="metric-block">
+        <div class="mb-val"><span data-i18n="m4v">100%</span></div>
+        <div class="mb-label" data-i18n="m4l">eventos auditáveis</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="hiw" id="como">
+    <div class="hiw-header reveal">
+      <div class="section-chip" data-i18n="how_chip">Como funciona</div>
+      <h2 class="section-h" data-i18n="how_title">Cobrar nunca foi tão simples</h2>
+      <p class="section-p" data-i18n="how_desc">Três passos para receber do seu cliente — com checkout, API e eventos em tempo real.</p>
+    </div>
+
+    <div class="hiw-flow">
+      <div class="hiw-step reveal">
+        <div class="hiw-icon ic-acc">🏪<div class="ring"></div></div>
+        <div class="hiw-title" data-i18n="how_1t">1. Crie sua conta merchant</div>
+        <div class="hiw-body" data-i18n="how_1d">Onboarding rápido com KYB leve (manual no MVP), API Keys e configuração de webhooks.</div>
+      </div>
+
+      <div class="hiw-step reveal" style="transition-delay:.10s">
+        <div class="hiw-icon ic-teal">🔗<div class="ring"></div></div>
+        <div class="hiw-title" data-i18n="how_2t">2. Gere uma cobrança</div>
+        <div class="hiw-body" data-i18n="how_2d">Via dashboard ou API: valor, métodos aceitos e regras de split. Link instantâneo.</div>
+      </div>
+
+      <div class="hiw-step reveal" style="transition-delay:.20s">
+        <div class="hiw-icon ic-purple">📡<div class="ring"></div></div>
+        <div class="hiw-title" data-i18n="how_3t">3. Confirme e concilie</div>
+        <div class="hiw-body" data-i18n="how_3d">Webhooks primeiro, idempotência e log de eventos para conciliação e auditoria.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="features-head reveal">
+      <div class="section-chip" data-i18n="feat_chip">Funcionalidades</div>
+      <h2 class="section-h" data-i18n="feat_title">Gateway completo,<br>do checkout ao payout</h2>
+    </div>
+
+    <div class="bento">
+      <div class="bento-card wide highlight reveal">
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div class="bc-icon bi-acc">⚡</div>
+          <div>
+            <div class="bc-title" data-i18n="f1t">Multi-método em um só link</div>
+            <div class="bc-body" data-i18n="f1d">Um checkout que aceita Pix, cartão e cripto. Seu cliente escolhe — você recebe. Sem múltiplas integrações.</div>
+            <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+              <span class="api-badge ab-acc">⚡ PIX</span>
+              <span class="api-badge ab-teal">💳 CARD</span>
+              <span class="api-badge ab-purple">₿ CRYPTO</span>
+            </div>
+          </div>
+        </div>
+        <div class="mini-chart">
+          <div class="bar" style="height:35%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:45%"></div>
+          <div class="bar" style="height:70%"></div>
+          <div class="bar" style="height:60%"></div>
+          <div class="bar active" style="height:90%"></div>
+          <div class="bar" style="height:75%"></div>
+          <div class="bar active" style="height:95%"></div>
+          <div class="bar" style="height:80%"></div>
+          <div class="bar" style="height:85%"></div>
+        </div>
+      </div>
+
+      <div class="bento-card reveal" style="transition-delay:.08s">
+        <div class="bc-icon bi-teal">🔀</div>
+        <div class="bc-title" data-i18n="f2t">Split de pagamento</div>
+        <div class="bc-body" data-i18n="f2d">Distribua automaticamente o valor entre múltiplos recebedores com regras configuráveis por charge.</div>
+        <div class="split-demo">
+          <div class="split-row"><span class="split-name" data-i18n="split_a">Marketplace</span><span class="split-pct">70%</span></div>
+          <div class="split-row"><span class="split-name" data-i18n="split_b">Vendedor A</span><span class="split-pct">20%</span></div>
+          <div class="split-row"><span class="split-name" data-i18n="split_c">Z-PAY fee</span><span class="split-pct">10%</span></div>
+        </div>
+      </div>
+
+      <div class="bento-card reveal" style="transition-delay:.12s">
+        <div class="bc-icon bi-purple">📡</div>
+        <div class="bc-title" data-i18n="f3t">Webhooks com retry</div>
+        <div class="bc-body" data-i18n="f3d">Eventos em tempo real com reenvio automático e log de tentativas. Monitore tudo no painel.</div>
+        <div class="webhook-log">
+          <div class="wl-row"><div class="wl-dot dot-ok"></div><span class="wl-ev">payment.confirmed</span><span class="wl-ms">48ms</span></div>
+          <div class="wl-row"><div class="wl-dot dot-ok"></div><span class="wl-ev">charge.created</span><span class="wl-ms">31ms</span></div>
+          <div class="wl-row"><div class="wl-dot dot-pend"></div><span class="wl-ev">payout.pending</span><span class="wl-ms">retry 2/3</span></div>
+          <div class="wl-row"><div class="wl-dot dot-fail"></div><span class="wl-ev">webhook.failed</span><span class="wl-ms">timeout</span></div>
+        </div>
+      </div>
+
+      <div class="bento-card reveal" style="transition-delay:.16s">
+        <div class="bc-icon bi-amber">🪪</div>
+        <div class="bc-title" data-i18n="f4t">Onboarding / KYB leve</div>
+        <div class="bc-body" data-i18n="f4d">Fluxo de ativação simples no MVP (manual/etapas), com trilha de auditoria e status.</div>
+      </div>
+
+      <div class="bento-card reveal" style="transition-delay:.20s">
+        <div class="bc-icon bi-acc">💸</div>
+        <div class="bc-title" data-i18n="f5t">Payout via parceiros</div>
+        <div class="bc-body" data-i18n="f5d">Liquidação quando aplicável: Pix, parceiros e (futuro) conta Z-FINANCE. Ledger mínimo e rastreável.</div>
+      </div>
+
+      <div class="bento-card highlight reveal" style="transition-delay:.24s">
+        <div class="bc-icon bi-teal">📊</div>
+        <div class="bc-title" data-i18n="f6t">Dashboard em tempo real</div>
+        <div class="bc-body" data-i18n="f6d">Cobranças, status, fees e extrato — com visão de eventos e conciliação para operar em escala.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="pricing-inner">
+      <div class="pricing-head reveal">
+        <div class="section-chip" data-i18n="p_chip">Planos</div>
+        <h2 class="section-h" data-i18n="p_title">Taxas claras, sem surpresas</h2>
+        <p class="section-p" data-i18n="p_desc">Comece sem custo fixo e escale com cobrança por transação e planos simples.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="price-card reveal">
+          <div class="pc-plan" data-i18n="ps_plan">Starter</div>
+          <div class="pc-price">R$0<span data-i18n="ps_month">/mês</span></div>
+          <div class="pc-desc" data-i18n="ps_desc">Para quem está começando a vender.</div>
+          <div class="pc-fee">
+            <span data-i18n="ps_fee">Pix: <strong>1,5%</strong> · Cartão: <strong>2,5%</strong> + R$0,50 · Cripto: <strong>1,0%</strong></span>
+          </div>
+          <ul class="pc-items">
+            <li data-i18n="ps_i1">Charges ilimitadas</li>
+            <li data-i18n="ps_i2">Link de pagamento</li>
+            <li data-i18n="ps_i3">Webhooks básicos</li>
+            <li data-i18n="ps_i4">Dashboard</li>
+            <li class="off" data-i18n="ps_i5">Split avançado</li>
+            <li class="off" data-i18n="ps_i6">Payout automático</li>
+          </ul>
+          <a class="pc-btn pc-outline" href="http://95.111.247.134:8082/" target="_blank" rel="noopener" data-i18n="ps_btn">Começar</a>
+        </div>
+
+        <div class="price-card featured reveal" style="transition-delay:.10s">
+          <div class="pc-plan" data-i18n="pp_plan">Pro</div>
+          <div class="pc-price">R$79<span data-i18n="pp_month">/mês</span></div>
+          <div class="pc-desc" data-i18n="pp_desc">Para merchants com operações avançadas.</div>
+          <div class="pc-fee">
+            <span data-i18n="pp_fee">Pix: <strong>0,75%</strong> · Cartão: <strong>1,9%</strong> + R$0,25 · Cripto: <strong>0,5%</strong></span>
+          </div>
+          <ul class="pc-items">
+            <li data-i18n="pp_i1">Tudo do Starter</li>
+            <li data-i18n="pp_i2">Split</li>
+            <li data-i18n="pp_i3">Webhooks com retry</li>
+            <li data-i18n="pp_i4">Idempotência</li>
+            <li data-i18n="pp_i5">Relatórios</li>
+          </ul>
+          <a class="pc-btn pc-solid" href="http://95.111.247.134:8082/" target="_blank" rel="noopener" data-i18n="pp_btn">Assinar Pro</a>
+        </div>
+
+        <div class="price-card reveal" style="transition-delay:.20s">
+          <div class="pc-plan" data-i18n="pb_plan">Business</div>
+          <div class="pc-price" style="font-size:30px;padding-top:6px;" data-i18n="pb_price">Sob consulta</div>
+          <div class="pc-desc" data-i18n="pb_desc">Para plataformas e marketplaces.</div>
+          <div class="pc-fee">
+            <span data-i18n="pb_fee">Taxas por volume · Split customizado · SLA 99.9%</span>
+          </div>
+          <ul class="pc-items">
+            <li data-i18n="pb_i1">Tudo do Pro</li>
+            <li data-i18n="pb_i2">Taxas negociadas</li>
+            <li data-i18n="pb_i3">Split multi-recebedor</li>
+            <li data-i18n="pb_i4">Suporte dedicado</li>
+          </ul>
+          <a class="pc-btn pc-outline" href="http://95.111.247.134:8082/" target="_blank" rel="noopener" data-i18n="pb_btn">Falar com vendas</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API -->
+  <section class="api-section" id="api">
+    <div class="api-inner">
+      <div class="reveal">
+        <div class="section-chip" data-i18n="api_chip">Desenvolvedores</div>
+        <h2 class="section-h" data-i18n="api_title">API REST simples.<br>Webhook primeiro.</h2>
+        <p class="section-p" data-i18n="api_desc">
+          Integre em qualquer stack com API RESTful. Crie cobranças, use idempotência e receba eventos assinados por HMAC.
+        </p>
+
+        <div class="api-badges">
+          <span class="api-badge ab-acc">REST</span>
+          <span class="api-badge ab-teal">JSON</span>
+          <span class="api-badge ab-acc">Webhooks</span>
+          <span class="api-badge ab-purple">Idempotency</span>
+          <span class="api-badge ab-teal">OpenAPI</span>
+          <span class="api-badge ab-acc">Sandbox</span>
+        </div>
+
+        <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="#api" class="btn-accent" data-i18n="api_btn1">Ver documentação</a>
+          <a href="#api" class="btn-ghost" data-i18n="api_btn2">Explorar sandbox</a>
+        </div>
+      </div>
+
+      <div class="code-block reveal" style="transition-delay:.12s">
+        <div class="code-topbar">
+          <div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div>
+          <span class="code-title" data-i18n="code_title">webhook · payment.confirmed</span>
+        </div>
+
+<pre><span class="c-com" data-i18n="code_c1">// Evento recebido no seu servidor</span>
+<span class="c-kw">const</span> event = <span class="c-punct">{</span>
+  <span class="c-key">event</span><span class="c-punct">:</span> <span class="c-str">"payment.confirmed"</span><span class="c-punct">,</span>
+  <span class="c-key">charge_id</span><span class="c-punct">:</span> <span class="c-str">"ch_9f2a3b..."</span><span class="c-punct">,</span>
+  <span class="c-key">amount</span><span class="c-punct">:</span> <span class="c-num">15000</span><span class="c-punct">,</span>
+  <span class="c-key">method</span><span class="c-punct">:</span> <span class="c-str">"PIX"</span><span class="c-punct">,</span>
+  <span class="c-key">fee_amount</span><span class="c-punct">:</span> <span class="c-num">225</span><span class="c-punct">,</span>
+  <span class="c-key">net_amount</span><span class="c-punct">:</span> <span class="c-num">14775</span><span class="c-punct">,</span>
+  <span class="c-key">status</span><span class="c-punct">:</span> <span class="c-acc">"CONFIRMED"</span>
+<span class="c-punct">}</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="cta-inner reveal">
+      <h2 data-i18n="cta2_title">Seu checkout pronto<br>em <em>menos de 10 minutos</em></h2>
+      <p data-i18n="cta2_desc">Crie sua conta, gere a primeira cobrança e comece a receber — com eventos em tempo real e taxas claras.</p>
+      <div class="cta-row">
+        <a href="http://95.111.247.134:8082/" target="_blank" rel="noopener" class="btn-accent" data-i18n="cta2_btn1">Criar conta</a>
+        <a href="#pricing" class="btn-ghost" data-i18n="cta2_btn2">Ver planos →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="fb-brand">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="brand-badge" style="width:40px;height:40px;">
+              <img src="assets/logo/zpay-logo.png" alt="Z-PAY Logo">
+            </div>
+            <div class="brand-text">
+              <div class="brand-name">Z-PAY</div>
+              <div class="brand-sub" data-i18n="nav_sub">GATEWAY</div>
+            </div>
+          </div>
+          <p data-i18n="foot_desc">Gateway de pagamentos SaaS para merchants e plataformas. Checkout, API, webhooks, split e conciliação — sem dependência do Z-FINANCE.</p>
+          <div class="ecosystem-pill"><span data-i18n="foot_pill_a">Ecossistema</span> <span>Zetta</span></div>
+        </div>
+
+        <div class="fc">
+          <h4 data-i18n="foot_p">Produto</h4>
+          <ul>
+            <li><a href="#features" data-i18n="foot_p1">Cobranças</a></li>
+            <li><a href="#features" data-i18n="foot_p2">Checkout</a></li>
+            <li><a href="#features" data-i18n="foot_p3">Split</a></li>
+            <li><a href="#features" data-i18n="foot_p4">Webhooks</a></li>
+            <li><a href="#pricing" data-i18n="foot_p5">Planos</a></li>
+          </ul>
+        </div>
+
+        <div class="fc">
+          <h4 data-i18n="foot_c">Empresa</h4>
+          <ul>
+            <li><a href="#" data-i18n="foot_c1">Sobre</a></li>
+            <li><a href="#" data-i18n="foot_c2">Contato</a></li>
+            <li><a href="#" data-i18n="foot_c3">Status</a></li>
+            <li><a href="#" data-i18n="foot_c4">Blog</a></li>
+            <li><a href="#" data-i18n="foot_c5">Brand</a></li>
+          </ul>
+        </div>
+
+        <div class="fc">
+          <h4 data-i18n="foot_d">Dev</h4>
+          <ul>
+            <li><a href="#api" data-i18n="foot_d1">API Docs</a></li>
+            <li><a href="#api" data-i18n="foot_d2">OpenAPI</a></li>
+            <li><a href="#api" data-i18n="foot_d3">Sandbox</a></li>
+            <li><a href="#" data-i18n="foot_d4">Changelog</a></li>
+            <li><a href="#" data-i18n="foot_d5">Suporte</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span data-i18n="foot_copy">© 2026 <strong>Z-PAY</strong>. Todos os direitos reservados.</span>
+        <div class="fb-links">
+          <a href="#" data-i18n="foot_l1">Privacidade</a>
+          <a href="#" data-i18n="foot_l2">Termos</a>
+          <a href="#" data-i18n="foot_l3">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MOBILE MENU OVERLAY -->
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="sheet-head">
+        <div class="sheet-title" data-i18n="menu_title">MENU</div>
+        <button class="close-btn" id="closeMenu" aria-label="Close">
+          <div class="close-x"></div>
+        </button>
+      </div>
+
+      <div class="sheet-body">
+        <div class="sheet-grid">
+          <a class="mm-item" href="#como"><span data-i18n="nav_how">Como funciona</span><span class="mm-arrow">→</span></a>
+          <a class="mm-item" href="#features"><span data-i18n="nav_features">Funcionalidades</span><span class="mm-arrow">→</span></a>
+          <a class="mm-item" href="#pricing"><span data-i18n="nav_pricing">Planos</span><span class="mm-arrow">→</span></a>
+          <a class="mm-item" href="#api"><span data-i18n="nav_devs">Desenvolvedores</span><span class="mm-arrow">→</span></a>
+        </div>
+
+        <div class="sheet-actions">
+          <a class="a-login" href="http://95.111.247.134:8082/" target="_blank" rel="noopener" data-i18n="nav_login">Login</a>
+          <a class="a-sign" href="http://95.111.247.134:8082/" target="_blank" rel="noopener" data-i18n="nav_signup">Criar conta</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ===== Scroll reveal
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -36px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // ===== Animate mini-chart on reveal
+  const chartObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.bar').forEach((b, i) => {
+          const h = b.style.height;
+          b.style.height = '4px';
+          setTimeout(() => {
+            b.style.transition = `height 0.5s ${i * 0.05}s ease`;
+            b.style.height = h;
+          }, 120);
+        });
+        chartObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.mini-chart').forEach(el => chartObs.observe(el));
+
+  // ===== Mobile menu
+  const overlay = document.getElementById('overlay');
+  const menuBtn = document.getElementById('menuBtn');
+  const closeMenu = document.getElementById('closeMenu');
+
+  function openMenu(){
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  }
+  function hideMenu(){
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+  menuBtn.addEventListener('click', openMenu);
+  closeMenu.addEventListener('click', hideMenu);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) hideMenu();
+  });
+  document.querySelectorAll('.mm-item').forEach(a => {
+    a.addEventListener('click', () => hideMenu());
+  });
+
+  // ===== Language popover
+  const langBtn = document.getElementById('langBtn');
+  const langPop = document.getElementById('langPop');
+  const flagBox = document.getElementById('flagBox');
+  const langCode = document.getElementById('langCode');
+
+  langBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    langPop.classList.toggle('open');
+  });
+  document.addEventListener('click', () => langPop.classList.remove('open'));
+
+  const dict = {
+    pt: {
+      nav_sub:"GATEWAY",
+      nav_how:"Como funciona",
+      nav_features:"Funcionalidades",
+      nav_pricing:"Planos",
+      nav_devs:"Desenvolvedores",
+      nav_login:"Login",
+      nav_signup:"Criar conta",
+
+      eyebrow:"MVP B2B: checkout, API e webhooks para cobrar",
+      h1_a:"Receba em",
+      h1_b:"Pix, Cripto",
+      h1_c:"e Cartão",
+      h1_line2:"do mesmo link. no mesmo painel.",
+      hero_desc:"Z-PAY é o gateway de cobranças do ecossistema Zetta. Crie charges, gerencie splits, dispare webhooks e acompanhe taxas e repasses em um painel que escala — sem dependência do Z-FINANCE.",
+      cta_start:"Começar agora",
+      cta_docs:"Ver docs →",
+      mvp_note:"B2B MVP: sem virar banco, sem obrigar conta no Z-FINANCE.",
+
+      term_title:"POST /v1/charges · create charge",
+      term_c1:"// Crie uma cobrança e receba um link em segundos",
+
+      trust_label:"ECOSYSTEM",
+
+      m1v:"0", m1l:"setup no Starter",
+      m2v:"3+", m2l:"métodos de pagamento",
+      m3v:"2s", m3l:"confirmação Pix",
+      m4v:"100%", m4l:"eventos auditáveis",
+
+      how_chip:"Como funciona",
+      how_title:"Cobrar nunca foi tão simples",
+      how_desc:"Três passos para receber do seu cliente — com checkout, API e eventos em tempo real.",
+      how_1t:"1. Crie sua conta merchant",
+      how_1d:"Onboarding rápido com KYB leve (manual no MVP), API Keys e configuração de webhooks.",
+      how_2t:"2. Gere uma cobrança",
+      how_2d:"Via dashboard ou API: valor, métodos aceitos e regras de split. Link instantâneo.",
+      how_3t:"3. Confirme e concilie",
+      how_3d:"Webhooks primeiro, idempotência e log de eventos para conciliação e auditoria.",
+
+      feat_chip:"Funcionalidades",
+      feat_title:"Gateway completo,<br>do checkout ao payout",
+      f1t:"Multi-método em um só link",
+      f1d:"Um checkout que aceita Pix, cartão e cripto. Seu cliente escolhe — você recebe. Sem múltiplas integrações.",
+      f2t:"Split de pagamento",
+      f2d:"Distribua automaticamente o valor entre múltiplos recebedores com regras configuráveis por charge.",
+      split_a:"Marketplace",
+      split_b:"Vendedor A",
+      split_c:"Z-PAY fee",
+      f3t:"Webhooks com retry",
+      f3d:"Eventos em tempo real com reenvio automático e log de tentativas. Monitore tudo no painel.",
+      f4t:"Onboarding / KYB leve",
+      f4d:"Fluxo de ativação simples no MVP (manual/etapas), com trilha de auditoria e status.",
+      f5t:"Payout via parceiros",
+      f5d:"Liquidação quando aplicável: Pix, parceiros e (futuro) conta Z-FINANCE. Ledger mínimo e rastreável.",
+      f6t:"Dashboard em tempo real",
+      f6d:"Cobranças, status, fees e extrato — com visão de eventos e conciliação para operar em escala.",
+
+      p_chip:"Planos",
+      p_title:"Taxas claras, sem surpresas",
+      p_desc:"Comece sem custo fixo e escale com cobrança por transação e planos simples.",
+
+      ps_plan:"Starter",
+      ps_month:"/mês",
+      ps_desc:"Para quem está começando a vender.",
+      ps_fee:"Pix: <strong>1,5%</strong> · Cartão: <strong>2,5%</strong> + R$0,50 · Cripto: <strong>1,0%</strong>",
+      ps_i1:"Charges ilimitadas",
+      ps_i2:"Link de pagamento",
+      ps_i3:"Webhooks básicos",
+      ps_i4:"Dashboard",
+      ps_i5:"Split avançado",
+      ps_i6:"Payout automático",
+      ps_btn:"Começar",
+
+      pp_plan:"Pro",
+      pp_month:"/mês",
+      pp_desc:"Para merchants com operações avançadas.",
+      pp_fee:"Pix: <strong>0,75%</strong> · Cartão: <strong>1,9%</strong> + R$0,25 · Cripto: <strong>0,5%</strong>",
+      pp_i1:"Tudo do Starter",
+      pp_i2:"Split",
+      pp_i3:"Webhooks com retry",
+      pp_i4:"Idempotência",
+      pp_i5:"Relatórios",
+      pp_btn:"Assinar Pro",
+
+      pb_plan:"Business",
+      pb_price:"Sob consulta",
+      pb_desc:"Para plataformas e marketplaces.",
+      pb_fee:"Taxas por volume · Split customizado · SLA 99.9%",
+      pb_i1:"Tudo do Pro",
+      pb_i2:"Taxas negociadas",
+      pb_i3:"Split multi-recebedor",
+      pb_i4:"Suporte dedicado",
+      pb_btn:"Falar com vendas",
+
+      api_chip:"Desenvolvedores",
+      api_title:"API REST simples.<br>Webhook primeiro.",
+      api_desc:"Integre em qualquer stack com API RESTful. Crie cobranças, use idempotência e receba eventos assinados por HMAC.",
+      api_btn1:"Ver documentação",
+      api_btn2:"Explorar sandbox",
+      code_title:"webhook · payment.confirmed",
+      code_c1:"// Evento recebido no seu servidor",
+
+      cta2_title:'Seu checkout pronto<br>em <em>menos de 10 minutos</em>',
+      cta2_desc:"Crie sua conta, gere a primeira cobrança e comece a receber — com eventos em tempo real e taxas claras.",
+      cta2_btn1:"Criar conta",
+      cta2_btn2:"Ver planos →",
+
+      foot_desc:"Gateway de pagamentos SaaS para merchants e plataformas. Checkout, API, webhooks, split e conciliação — sem dependência do Z-FINANCE.",
+      foot_pill_a:"Ecossistema",
+      foot_p:"Produto",
+      foot_p1:"Cobranças",
+      foot_p2:"Checkout",
+      foot_p3:"Split",
+      foot_p4:"Webhooks",
+      foot_p5:"Planos",
+      foot_c:"Empresa",
+      foot_c1:"Sobre",
+      foot_c2:"Contato",
+      foot_c3:"Status",
+      foot_c4:"Blog",
+      foot_c5:"Brand",
+      foot_d:"Dev",
+      foot_d1:"API Docs",
+      foot_d2:"OpenAPI",
+      foot_d3:"Sandbox",
+      foot_d4:"Changelog",
+      foot_d5:"Suporte",
+      foot_copy:'© 2026 <strong>Z-PAY</strong>. Todos os direitos reservados.',
+      foot_l1:"Privacidade",
+      foot_l2:"Termos",
+      foot_l3:"Cookies",
+      menu_title:"MENU"
+    },
+
+    en: {
+      nav_sub:"GATEWAY",
+      nav_how:"How it works",
+      nav_features:"Features",
+      nav_pricing:"Pricing",
+      nav_devs:"Developers",
+      nav_login:"Login",
+      nav_signup:"Create account",
+
+      eyebrow:"B2B MVP: checkout, API & webhooks to charge",
+      h1_a:"Get paid with",
+      h1_b:"Pix, Crypto",
+      h1_c:"and Cards",
+      h1_line2:"same link. same dashboard.",
+      hero_desc:"Z-PAY is Zetta’s billing gateway. Create charges, manage splits, fire webhooks, and track fees & payouts in a scalable dashboard — no Z-FINANCE dependency.",
+      cta_start:"Start now",
+      cta_docs:"View docs →",
+      mvp_note:"B2B MVP: no bank license, no required Z-FINANCE account.",
+
+      term_title:"POST /v1/charges · create charge",
+      term_c1:"// Create a charge and get a link in seconds",
+
+      trust_label:"ECOSYSTEM",
+
+      m1v:"0", m1l:"setup on Starter",
+      m2v:"3+", m2l:"payment methods",
+      m3v:"2s", m3l:"Pix confirmation",
+      m4v:"100%", m4l:"auditable events",
+
+      how_chip:"How it works",
+      how_title:"Charging is now simple",
+      how_desc:"Three steps to get paid — with checkout, API and real-time events.",
+      how_1t:"1. Create your merchant account",
+      how_1d:"Fast onboarding with light KYB (manual in MVP), API Keys and webhook setup.",
+      how_2t:"2. Create a charge",
+      how_2d:"Dashboard or API: amount, accepted methods, and split rules. Instant link.",
+      how_3t:"3. Confirm & reconcile",
+      how_3d:"Webhook-first, idempotency, and event logs for reconciliation & audit.",
+
+      feat_chip:"Features",
+      feat_title:"Full gateway,<br>from checkout to payout",
+      f1t:"Multi-method in one link",
+      f1d:"One checkout that supports Pix, cards and crypto. Your customer chooses — you get paid.",
+      f2t:"Payment splitting",
+      f2d:"Automatically distribute funds across recipients with per-charge rules.",
+      split_a:"Marketplace",
+      split_b:"Seller A",
+      split_c:"Z-PAY fee",
+      f3t:"Webhooks with retries",
+      f3d:"Real-time events with retries and delivery logs. Monitor everything in the dashboard.",
+      f4t:"Onboarding / light KYB",
+      f4d:"Simple MVP activation flow (manual/steps) with audit trail and status.",
+      f5t:"Partner payouts",
+      f5d:"Settlement when applicable: Pix, partners, and (future) Z-FINANCE account. Minimal, traceable ledger.",
+      f6t:"Real-time dashboard",
+      f6d:"Charges, statuses, fees and statement — with events and reconciliation view.",
+
+      p_chip:"Pricing",
+      p_title:"Clear fees, no surprises",
+      p_desc:"Start without fixed cost and scale with simple plans and per-transaction pricing.",
+
+      ps_plan:"Starter",
+      ps_month:"/mo",
+      ps_desc:"For getting started.",
+      ps_fee:"Pix: <strong>1.5%</strong> · Card: <strong>2.5%</strong> + R$0.50 · Crypto: <strong>1.0%</strong>",
+      ps_i1:"Unlimited charges",
+      ps_i2:"Payment links",
+      ps_i3:"Basic webhooks",
+      ps_i4:"Dashboard",
+      ps_i5:"Advanced splits",
+      ps_i6:"Auto payouts",
+      ps_btn:"Start",
+
+      pp_plan:"Pro",
+      pp_month:"/mo",
+      pp_desc:"For advanced operations.",
+      pp_fee:"Pix: <strong>0.75%</strong> · Card: <strong>1.9%</strong> + R$0.25 · Crypto: <strong>0.5%</strong>",
+      pp_i1:"Everything in Starter",
+      pp_i2:"Splits",
+      pp_i3:"Webhook retries",
+      pp_i4:"Idempotency",
+      pp_i5:"Reports",
+      pp_btn:"Go Pro",
+
+      pb_plan:"Business",
+      pb_price:"Custom",
+      pb_desc:"For platforms & marketplaces.",
+      pb_fee:"Volume pricing · Custom splits · 99.9% SLA",
+      pb_i1:"Everything in Pro",
+      pb_i2:"Negotiated pricing",
+      pb_i3:"Multi-recipient splits",
+      pb_i4:"Dedicated support",
+      pb_btn:"Talk to sales",
+
+      api_chip:"Developers",
+      api_title:"Simple REST API.<br>Webhook-first.",
+      api_desc:"Integrate with any stack. Create charges, use idempotency, and receive HMAC-signed events.",
+      api_btn1:"View docs",
+      api_btn2:"Explore sandbox",
+      code_title:"webhook · payment.confirmed",
+      code_c1:"// Event received by your server",
+
+      cta2_title:'Your checkout ready<br>in <em>under 10 minutes</em>',
+      cta2_desc:"Create an account, generate your first charge, and start getting paid — with real-time events and clear fees.",
+      cta2_btn1:"Create account",
+      cta2_btn2:"See pricing →",
+
+      foot_desc:"SaaS payment gateway for merchants and platforms. Checkout, API, webhooks, split and reconciliation — no Z-FINANCE dependency.",
+      foot_pill_a:"Ecosystem",
+      foot_p:"Product",
+      foot_p1:"Charges",
+      foot_p2:"Checkout",
+      foot_p3:"Split",
+      foot_p4:"Webhooks",
+      foot_p5:"Pricing",
+      foot_c:"Company",
+      foot_c1:"About",
+      foot_c2:"Contact",
+      foot_c3:"Status",
+      foot_c4:"Blog",
+      foot_c5:"Brand",
+      foot_d:"Dev",
+      foot_d1:"API Docs",
+      foot_d2:"OpenAPI",
+      foot_d3:"Sandbox",
+      foot_d4:"Changelog",
+      foot_d5:"Support",
+      foot_copy:'© 2026 <strong>Z-PAY</strong>. All rights reserved.',
+      foot_l1:"Privacy",
+      foot_l2:"Terms",
+      foot_l3:"Cookies",
+      menu_title:"MENU"
+    },
+
+    zh: {
+      nav_sub:"网关",
+      nav_how:"如何运作",
+      nav_features:"功能",
+      nav_pricing:"方案",
+      nav_devs:"开发者",
+      nav_login:"登录",
+      nav_signup:"创建账号",
+
+      eyebrow:"面向结账、API 与 WEBHOOKS 的 SAAS 支付网关",
+      h1_a:"企业级",
+      h1_b:"支付结账",
+      h1_c:"",
+      h1_line2:"收款、分账、对账与结算 — 简单 API 即可接入。",
+      hero_desc:"Z-PAY 是 Zetta 生态中的支付模块，服务于商户与平台。创建收款单、选择支付方式、接收实时事件，并在可扩展的仪表盘中追踪手续费与结算。",
+      cta_start:"立即开始",
+      cta_docs:"查看文档 →",
+      mvp_note:"B2B MVP：无需“变成银行”，也不强制开通 Z-FINANCE 账户。",
+
+      term_title:"POST /v1/charges · 创建收款单",
+      term_c1:"// 创建收款单并在几秒内获取支付链接",
+
+      trust_label:"ECOSYSTEM",
+
+      m1v:"0", m1l:"Starter 零设置费",
+      m2v:"3+", m2l:"支付方式",
+      m3v:"2s", m3l:"Pix 确认",
+      m4v:"100%", m4l:"可审计事件",
+
+      how_chip:"如何运作",
+      how_title:"收款从未如此简单",
+      how_desc:"三步完成接入：结账页、API 与实时事件。",
+      how_1t:"1. 创建商户账户",
+      how_1d:"轻量 KYB（MVP 可手动），生成 API Keys 并配置 Webhooks。",
+      how_2t:"2. 创建收款单",
+      how_2d:"通过仪表盘或 API：金额、方式与分账规则，立即获得链接。",
+      how_3t:"3. 确认与对账",
+      how_3d:"Webhook 优先、幂等与事件日志，便于对账与审计。",
+
+      feat_chip:"功能",
+      feat_title:"从结账到结算的完整网关",
+      f1t:"一个链接，多种方式",
+      f1d:"同一结账页同时支持 Pix、卡与加密货币。客户选择，你收款。",
+      f2t:"分账",
+      f2d:"按收款单规则自动分配到多个收款方。",
+      split_a:"平台",
+      split_b:"商户 A",
+      split_c:"Z-PAY 手续费",
+      f3t:"Webhook 重试",
+      f3d:"实时事件 + 自动重试 + 投递日志，面板可监控。",
+      f4t:"入驻 / 轻量 KYB",
+      f4d:"MVP 简化流程（手动/分步），含审计轨迹与状态。",
+      f5t:"合作方结算",
+      f5d:"适用时可通过 Pix/合作方结算；未来可接入 Z-FINANCE。最小可追溯账本。",
+      f6t:"实时仪表盘",
+      f6d:"收款单、状态、手续费与流水，支持事件与对账视图。",
+
+      p_chip:"方案",
+      p_title:"费用透明，无隐藏成本",
+      p_desc:"从零固定成本开始，按交易收费并可随业务升级。",
+
+      ps_plan:"Starter",
+      ps_month:"/月",
+      ps_desc:"适合起步阶段。",
+      ps_fee:"Pix：<strong>1.5%</strong> · 卡：<strong>2.5%</strong> + R$0.50 · 加密：<strong>1.0%</strong>",
+      ps_i1:"无限收款单",
+      ps_i2:"支付链接",
+      ps_i3:"基础 Webhooks",
+      ps_i4:"仪表盘",
+      ps_i5:"高级分账",
+      ps_i6:"自动结算",
+      ps_btn:"开始",
+
+      pp_plan:"Pro",
+      pp_month:"/月",
+      pp_desc:"适合进阶运营。",
+      pp_fee:"Pix：<strong>0.75%</strong> · 卡：<strong>1.9%</strong> + R$0.25 · 加密：<strong>0.5%</strong>",
+      pp_i1:"包含 Starter",
+      pp_i2:"分账",
+      pp_i3:"Webhook 重试",
+      pp_i4:"幂等",
+      pp_i5:"报表",
+      pp_btn:"升级 Pro",
+
+      pb_plan:"Business",
+      pb_price:"定制",
+      pb_desc:"适合平台与市场。",
+      pb_fee:"按量定价 · 定制分账 · 99.9% SLA",
+      pb_i1:"包含 Pro",
+      pb_i2:"协商费率",
+      pb_i3:"多收款方分账",
+      pb_i4:"专属支持",
+      pb_btn:"联系销售",
+
+      api_chip:"开发者",
+      api_title:"REST API 简洁易用。<br>Webhook 优先。",
+      api_desc:"兼容任何技术栈：创建收款单、幂等处理、HMAC 签名事件。",
+      api_btn1:"查看文档",
+      api_btn2:"探索 Sandbox",
+      code_title:"webhook · payment.confirmed",
+      code_c1:"// 服务器收到的事件",
+
+      cta2_title:'10 分钟内<br>完成接入 <em>并开始收款</em>',
+      cta2_desc:"创建账号，生成第一笔收款单，即可开始收款 — 实时事件与透明费用。",
+      cta2_btn1:"创建账号",
+      cta2_btn2:"查看方案 →",
+
+      foot_desc:"面向商户与平台的 SaaS 支付网关：结账页、API、Webhooks、分账与对账 — 无需依赖 Z-FINANCE。",
+      foot_pill_a:"生态",
+      foot_p:"产品",
+      foot_p1:"收款",
+      foot_p2:"结账",
+      foot_p3:"分账",
+      foot_p4:"Webhooks",
+      foot_p5:"方案",
+      foot_c:"公司",
+      foot_c1:"关于",
+      foot_c2:"联系",
+      foot_c3:"状态",
+      foot_c4:"博客",
+      foot_c5:"品牌",
+      foot_d:"开发者",
+      foot_d1:"API 文档",
+      foot_d2:"OpenAPI",
+      foot_d3:"Sandbox",
+      foot_d4:"更新日志",
+      foot_d5:"支持",
+      foot_copy:'© 2026 <strong>Z-PAY</strong>。保留所有权利。',
+      foot_l1:"隐私",
+      foot_l2:"条款",
+      foot_l3:"Cookies",
+      menu_title:"MENU"
+    }
+  };
+
+  function setLang(lang){
+    const map = dict[lang] || dict.pt;
+
+    document.documentElement.lang = (lang === 'pt' ? 'pt-BR' : (lang === 'en' ? 'en' : 'zh-CN'));
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (!key) return;
+      const val = map[key];
+      if (val === undefined) return;
+
+      // allow html content in some strings
+      if (String(val).includes('<') && String(val).includes('>')) {
+        el.innerHTML = val;
+      } else {
+        el.textContent = val;
+      }
+    });
+
+    // top lang display
+    if (lang === 'pt'){ flagBox.textContent = '🇧🇷'; langCode.textContent = 'PT'; }
+    if (lang === 'en'){ flagBox.textContent = '🇺🇸'; langCode.textContent = 'EN'; }
+    if (lang === 'zh'){ flagBox.textContent = '🇨🇳'; langCode.textContent = '中文'; }
+
+    // active class
+    document.querySelectorAll('.lang-item').forEach(i => {
+      i.classList.toggle('active', i.getAttribute('data-lang') === lang);
+    });
+
+    localStorage.setItem('zpay_lang', lang);
+  }
+
+  document.querySelectorAll('.lang-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const lang = item.getAttribute('data-lang');
+      setLang(lang);
+      langPop.classList.remove('open');
+    });
+  });
+
+  // init language
+  const saved = localStorage.getItem('zpay_lang');
+  setLang(saved || 'pt');
+</script>
+
+</body>
+</html>
