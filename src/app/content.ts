@@ -283,7 +283,7 @@ export const bodyHtml = `<!-- SCROLL PROGRESS BAR -->
           <div class="pc-price">R$0<span data-i18n="ps_month">/mês</span></div>
           <div class="pc-desc" data-i18n="ps_desc">Para operações em fase inicial de integração.</div>
           <div class="pc-fee">
-            <span data-i18n="ps_fee">Pix: <strong>1,5%</strong> · Cartão: <strong>2,5%</strong> + R$0,50 · Cripto: <strong>1,0%</strong></span>
+            <span data-i18n="ps_fee">PIX: <strong>4,5%</strong> · Cartão: <strong>5,5%</strong>+R$0,50 · Ativos digitais: <strong>3,5%</strong></span>
           </div>
           <ul class="pc-items">
             <li data-i18n="ps_i1">Charges ilimitadas</li>
@@ -302,7 +302,7 @@ export const bodyHtml = `<!-- SCROLL PROGRESS BAR -->
           <div class="pc-price">R$79<span data-i18n="pp_month">/mês</span></div>
           <div class="pc-desc" data-i18n="pp_desc">Para operações com maior volume e necessidades operacionais avançadas.</div>
           <div class="pc-fee">
-            <span data-i18n="pp_fee">Pix: <strong>0,75%</strong> · Cartão: <strong>1,9%</strong> + R$0,25 · Cripto: <strong>0,5%</strong></span>
+            <span data-i18n="pp_fee">PIX: <strong>3,2%</strong> · Cartão: <strong>4,5%</strong>+R$0,25 · Ativos digitais: <strong>2,5%</strong></span>
           </div>
           <ul class="pc-items">
             <li data-i18n="pp_i1">Tudo do Core</li>
@@ -871,7 +871,7 @@ export const clientScript = `// ════════════════
       ps_plan:"Core",
       ps_month:"/mês",
       ps_desc:"Para operações em fase inicial de integração.",
-      ps_fee:"Pix: <strong>1,5%</strong> · Cartão: <strong>2,5%</strong> + R$0,50 · Cripto: <strong>1,0%</strong>",
+      ps_fee:"PIX: <strong>4,5%</strong> · Cartão: <strong>5,5%</strong>+R$0,50 · Ativos digitais: <strong>3,5%</strong>",
       ps_i1:"Charges ilimitadas",
       ps_i2:"Link de pagamento",
       ps_i3:"Webhooks básicos",
@@ -883,7 +883,7 @@ export const clientScript = `// ════════════════
       pp_plan:"Pro",
       pp_month:"/mês",
       pp_desc:"Para operações com maior volume e necessidades operacionais avançadas.",
-      pp_fee:"Pix: <strong>0,75%</strong> · Cartão: <strong>1,9%</strong> + R$0,25 · Cripto: <strong>0,5%</strong>",
+      pp_fee:"PIX: <strong>3,2%</strong> · Cartão: <strong>4,5%</strong>+R$0,25 · Ativos digitais: <strong>2,5%</strong>",
       pp_i1:"Tudo do Core",
       pp_i2:"Split",
       pp_i3:"Webhooks com retry",
@@ -1024,7 +1024,7 @@ export const clientScript = `// ════════════════
       ps_plan:"Core",
       ps_month:"/mo",
       ps_desc:"For operations in the initial integration phase.",
-      ps_fee:"Pix: <strong>1.5%</strong> · Card: <strong>2.5%</strong> + R$0.50 · Crypto: <strong>1.0%</strong>",
+      ps_fee:"PIX: <strong>4.5%</strong> · Card: <strong>5.5%</strong>+R$0.50 · Digital assets: <strong>3.5%</strong>",
       ps_i1:"Unlimited charges",
       ps_i2:"Payment links",
       ps_i3:"Basic webhooks",
@@ -1036,7 +1036,7 @@ export const clientScript = `// ════════════════
       pp_plan:"Pro",
       pp_month:"/mo",
       pp_desc:"For operations with higher volume and advanced operational requirements.",
-      pp_fee:"Pix: <strong>0.75%</strong> · Card: <strong>1.9%</strong> + R$0.25 · Crypto: <strong>0.5%</strong>",
+      pp_fee:"PIX: <strong>3.2%</strong> · Card: <strong>4.5%</strong>+R$0.25 · Digital assets: <strong>2.5%</strong>",
       pp_i1:"Everything in Core",
       pp_i2:"Splits",
       pp_i3:"Webhook retries",
@@ -1177,7 +1177,7 @@ export const clientScript = `// ════════════════
       ps_plan:"Core",
       ps_month:"/月",
       ps_desc:"适合初始集成阶段的运营。",
-      ps_fee:"Pix：<strong>1.5%</strong> · 卡：<strong>2.5%</strong> + R$0.50 · 加密：<strong>1.0%</strong>",
+      ps_fee:"PIX：<strong>4.5%</strong> · 卡：<strong>5.5%</strong>+R$0.50 · 数字资产：<strong>3.5%</strong>",
       ps_i1:"无限收款单",
       ps_i2:"支付链接",
       ps_i3:"基础 Webhooks",
@@ -1189,7 +1189,7 @@ export const clientScript = `// ════════════════
       pp_plan:"Pro",
       pp_month:"/月",
       pp_desc:"适合更高交易量及进阶运营需求的操作。",
-      pp_fee:"Pix：<strong>0.75%</strong> · 卡：<strong>1.9%</strong> + R$0.25 · 加密：<strong>0.5%</strong>",
+      pp_fee:"PIX：<strong>3.2%</strong> · 卡：<strong>4.5%</strong>+R$0.25 · 数字资产：<strong>2.5%</strong>",
       pp_i1:"包含 Starter",
       pp_i2:"分账",
       pp_i3:"Webhook 重试",
